@@ -1,0 +1,328 @@
+{{ define "register/register.html" }}
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - XiaoMo聊天室</title>
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-light: #a29bfe;
+            --dark-color: #2d3436;
+            --light-color: #f5f6fa;
+            --border-color: #dfe6e9;
+            --gray-color: #636e72;
+            --error-color: #d63031;
+            --success-color: #00b894;
+            --warning-color: #f39c12;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .register-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.8rem;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
+        #message {
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .error-message {
+            background-color: rgba(214, 48, 49, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(214, 48, 49, 0.2);
+            display: block !important;
+        }
+        
+        .success-message {
+            background-color: rgba(0, 184, 148, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(0, 184, 148, 0.2);
+            display: block !important;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+            outline: none;
+        }
+        
+        .input-hint {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            margin-top: 0.3rem;
+            display: block;
+        }
+        
+        .password-strength {
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            background: var(--error-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            background: var(--primary-light);
+        }
+        
+        .btn:disabled {
+            background: var(--gray-color);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .login-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        
+        .login-link:hover {
+            text-decoration: underline;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            .input-field {
+                padding: 0.7rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-container">
+        <h1>创建您的账号</h1>
+        <div id="message"></div>
+        
+        <form id="registerForm" action="/register" method="POST">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" class="input-field" 
+                       placeholder="请输入4-18位字母或数字" 
+                       pattern="[a-zA-Z0-9]{4,18}" 
+                       title="用户名必须为4-18位字母或数字" 
+                       required>
+                <span class="input-hint">4-18位字母或数字，不含特殊字符</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" class="input-field" 
+                       placeholder="请输入6-18位字符" 
+                       minlength="6" 
+                       maxlength="18" 
+                       required>
+                <div class="password-strength">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <span class="input-hint">6-18位字符，建议包含字母、数字和符号</span>
+            </div>
+
+            <div class="form-group">
+                <label for="repassword">确认密码</label>
+                <input type="password" id="repassword" name="repassword" class="input-field" 
+                       placeholder="请再次输入密码" 
+                       required>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">立即注册</button>
+        </form>
+        
+        <a href="/login" class="login-link">已有账号？立即登录</a>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const messageDiv = document.getElementById('message');
+            const submitBtn = document.getElementById('submitBtn');
+            messageDiv.className = '';
+            messageDiv.textContent = '';
+            submitBtn.disabled = true;
+            
+            // 客户端验证
+            const username = formData.get('username');
+            const password = formData.get('password');
+            const repassword = formData.get('repassword');
+            
+            // 用户名验证
+            if (!/^[a-zA-Z0-9]{4,18}$/.test(username)) {
+                messageDiv.className = 'error-message';
+                messageDiv.textContent = '用户名必须为4-18位字母或数字';
+                submitBtn.disabled = false;
+                return;
+            }
+            
+            // 密码验证
+            if (password.length < 6 || password.length > 18) {
+                messageDiv.className = 'error-message';
+                messageDiv.textContent = '密码长度必须为6-18位';
+                submitBtn.disabled = false;
+                return;
+            }
+            
+            // 密码一致性验证
+            if (password !== repassword) {
+                messageDiv.className = 'error-message';
+                messageDiv.textContent = '两次输入的密码不一致';
+                submitBtn.disabled = false;
+                return;
+            }
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.className = 'success-message';
+                    messageDiv.textContent = data.message || '注册成功！即将跳转到登录页面...';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1500);
+                } else {
+                    messageDiv.className = 'error-message';
+                    messageDiv.textContent = data.message || data.Message || '注册失败，请重试';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                messageDiv.className = 'error-message';
+                messageDiv.textContent = '请求失败，请检查网络连接';
+                submitBtn.disabled = false;
+                console.error('Error:', error);
+            }
+        });
+
+        // 密码强度检测
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('strengthBar');
+            let strength = 0;
+            
+            if (password.length > 0) strength += 20;
+            if (password.length >= 6) strength += 20;
+            if (/[A-Z]/.test(password)) strength += 20;
+            if (/[0-9]/.test(password)) strength += 20;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+            
+            strengthBar.style.width = strength + '%';
+            
+            if (strength < 40) {
+                strengthBar.style.backgroundColor = 'var(--error-color)';
+            } else if (strength < 80) {
+                strengthBar.style.backgroundColor = 'var(--warning-color)';
+            } else {
+                strengthBar.style.backgroundColor = 'var(--success-color)';
+            }
+        });
+    </script>
+</body>
+
+</html>
+{{ end }}
